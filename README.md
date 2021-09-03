@@ -42,12 +42,12 @@ The project web hosts and the proxy communicate via the common `proxy` network a
 I then add entries to my desktop hosts file so that I can access each running project web host via a suitable, logical host name. I like to add these as IP addresses within the 127.0.2.0/24 subnet. Here are some example entries in my hosts file for projects that I am working on at the moment.
 
 ```
-127.0.2.1		data-web
+127.0.2.1       data-web
 127.0.2.2       fobv
 127.0.2.4       varilink-web
 127.0.2.8       transform-uk-web
-127.0.2.9		transform-uk-admin
-127.0.2.10		transform-uk-legacy-web
+127.0.2.9       transform-uk-admin
+127.0.2.10      transform-uk-legacy-web
 127.0.2.11      transform-uk-legacy-admin
 ```
 
