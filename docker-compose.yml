@@ -8,10 +8,24 @@ services:
 
     image: varilink/proxy
 
+    # Use a fixed container name so that if multiple projects are running on the
+    # same desktop that use this tool, they don't try to bring up separate
+    # containers, one for each project, that would then clash on port 80 of the
+    # local hosts network interface.
+    container_name: tools_proxy
+
+    # Expose this service to port 80 on the localhost interface so that it may
+    # be conveniently accessed using a web browser on the host.
     ports: [ "80:80" ]
 
+    # Connect this tool to the proxy network so that it can pass requests
+    # through to each web host in project's that use this tool.
     networks: [ proxy ]
 
 networks:
-
+  # Provide an external proxy network definition for project's that include this
+  # Docker Compose file so that they all connect their web hosts to a common
+  # proxy network and don't create a separate proxy network for each project.
   proxy:
+    external: true
+    name: tools_proxy
