@@ -17,9 +17,13 @@ An alternative would be to map the port for HTTP in those development instances 
 
 To use this tool within a project requires the following steps:
 
-1. Add this repository to the project's repository as a Git submodule. I base my local development and testing on Docker Compose, so the project's repository will contain the Docker Compose setup to run that project.
+1. Add this repository to the project's repository as a Git submodule. I base my local development and testing on Docker Compose, so the project's repository will contain the Docker Compose setup to run that project. Note that you must add this repository as a Git submodule with the path tools-proxy, so that if you build the proxy service from within your project the build context is correct.
 2. Set the COMPOSE_FILE to include this tool's `docker-compose.yml` file, for example `COMPOSE_FILE=docker-compose.yml:./tools-proxy/docker-compose.yml`. The first entry in a concatenated list of files of Docker Compose files sets the root for all relative paths in subsequent Docker Compose file. This tool relies on being checked out as a submodule at the level immediately below the project's root folder.
-3. Connect the web service layer of the project to the external network `proxy` that is defined by this tool and make this tool a dependency in order to have it come up whenever you bring up the project's web service. My [Tools - WordPress](https://github.com/varilink/tools-wordpress) repository has this built-in so when this is used as the basis of WordPress sites then access to this tools comes automatically.
+3. Connect the web service layer(s) of the project to the network `proxy` that is defined by this tool and make this tool a dependency in order to have it come up whenever you bring up the project's web service(s). My [Tools - WordPress](https://github.com/varilink/tools-wordpress) repository has this built-in so when this is used as the basis of WordPress sites then access to this tools comes automatically.
+4. Connect the web service layer(s) of your project and any other layers that it must communicate with, e.g. a database layer, to a back end network, which can be the project's default network of course.
+5. Ensure that the container name(s) for your project's web service(s) are entered into your local hosts file as described in DNS / Host name lookup below.
+
+Remember that you can't have this tool running simultaneously for more than one project on your desktop, that would lead to a clash on port 80 of the local interface. So, you have to manage the running services to avoid this if working on more than one project at once.
 
 ## DNS / Host name lookup
 
@@ -41,20 +45,3 @@ To implement the fist requirement, I add entries to my desktop hosts file so tha
 ```
 
 For the second of these, I specify a fixed container name for the web service layers of project's. The running proxy then uses the Docker embedded DNS server as a resolver, assuming that this is at address 127.0.0.11. That seems to be a fixed address that can be relied upon based on an Internet search of the discussions on the subject. However, I note when the [Container networking](https://docs.docker.com/config/containers/container-networking/) section in official Docker documentation discusses container DNS services and Docker's embedded DNS server, it does not refer to this address. Should there be an issue the possibility that Docker's embedded DNS server is at another address must be considered.
-
-## Issues
-
-I use this tool in multiple projects. When I first bring up the web service of a project that uses this tool then the `tools_proxy` container is brought up as a dependency. If I then bring up the web service of another project that uses this tool I will hit this error:
-
-```
-Creating tools_proxy ... error
-
-ERROR: for tools_proxy  Cannot create container for service proxy: Conflict. The container name "/tools_proxy" is already in use by container "406e504f0d92a6356f599cda4e4debd4aef79dcc84dbafad74e343b485531b0c". You have to remove (or rename) that container to be able to reuse that name.
-
-ERROR: for proxy  Cannot create container for service proxy: Conflict. The container name "/tools_proxy" is already in use by container "406e504f0d92a6356f599cda4e4debd4aef79dcc84dbafad74e343b485531b0c". You have to remove (or rename) that container to be able to reuse that name.
-ERROR: Encountered errors while bringing up the project.
-```
-
-What's happening here? Of course the first project has already created the container for its `tools_proxy` service but when the second project tries to bring up its `tools_proxy` service it doesn't know that. So the second project tries to create the container itself. It then fails because it finds that a container with that name already exists.
-
-When this happens it's okay to simply stop and remove the `tools_proxy` container and then bring up the web service of the other project.
