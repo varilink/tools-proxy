@@ -4,7 +4,7 @@ services:
 
   proxy:
 
-    build: tools-proxy
+    build: tools/proxy
 
     image: varilink/proxy
 
