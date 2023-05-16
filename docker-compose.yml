@@ -4,20 +4,5 @@ services:
 
   proxy:
 
-    build: tools/proxy
-
-    image: varilink/proxy
-
-    # Expose this service to port 80 on the localhost interface so that it may
-    # be conveniently accessed using a web browser on the host.
-    ports: [ "80:80" ]
-
-    # Connect this tool to the proxy network so that it can pass requests
-    # through to each web host in project's that use this tool.
-    networks: [ proxy ]
-
-networks:
-  # Provide a proxy network definition for project's that include this Docker
-  # Compose file so that they may connect their web hosts to this proxy network.
-  # Project's must then create their own backend networks.
-  proxy:
+    image: ubuntu/squid
+    ports: ["${PROXY_PORT}:3128"]
